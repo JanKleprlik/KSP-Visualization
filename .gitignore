@@ -1,0 +1,5 @@
+﻿/.vs/*
+/AudioVisualizer/Resources/*.wav
+/.idea/*
+/AudioVisualizer/bin/*
+/AudioVisualizer/obj/*
