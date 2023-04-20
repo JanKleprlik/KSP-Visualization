@@ -12,10 +12,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="AudioFormats\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <None Update="Resources\mars.png">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>

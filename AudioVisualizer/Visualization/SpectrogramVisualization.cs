@@ -9,7 +9,7 @@ public class SpectrogramVisualization : FftVisualization
 {
     private readonly uint _spectrogramWidth;
     private readonly VertexArray _vertices;
-    private uint _updateColIndex = 0;
+    private uint _updateColIndex;
     private readonly Vector2f _startingPosition;
     private readonly Vector2f _columnShift;
     

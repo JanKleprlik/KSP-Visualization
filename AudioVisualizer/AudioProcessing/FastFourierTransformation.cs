@@ -25,7 +25,7 @@ namespace AudioVisualizer.AudioProcessing;
 			while (n > max) // while loop represents logarithm for loop implementation of https://en.wikipedia.org/wiki/Cooley%E2%80%93Tukey_FFT_algorithm
 			{
 				int step = 2 * max; // 2^s form wiki
-									//helper variables for Real and Img separate computations
+				//helper variables for Real and Img separate computations
 				double omegaReal = 1;
 				double omegaImg = 0;
 				double omegaCoefReal = Math.Cos(Math.PI / max);

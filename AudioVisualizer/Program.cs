@@ -1,75 +1,41 @@
-﻿// ReSharper disable StringLiteralTypo
-using AudioVisualizer;
+﻿using AudioVisualizer;
 using AudioVisualizer.Visualization;
 using SFML.Audio;
+using SFML.Graphics;
 
 const uint width = 1224;
 const uint height = 800;
 const int fps = 30;
 
-const string pathBase = @"C:\Users\klepr\source\repos\KSP\AudioVizualiser\AudioVisualizer\Resources\";
+VisualizationMode visualizationMode = UserSelectMode();
+string songName = UserSelectSong();
 
-// VisualizationMode visualizationMode = UserSelectMode();
-// string songName = UserSelectSong();
+// const VisualizationMode visualizationMode = VisualizationMode.Line;
+// const string songName = "sifflet";
 
-const VisualizationMode visualizationMode = VisualizationMode.Line;
-const string songName = "sifflet";
-
-var data = File.ReadAllBytes(pathBase + songName + ".wav");
-SoundBuffer soundBuffer = new SoundBuffer(data);
-
-IVisualization visualisation;
-switch (visualizationMode)
-{
-    case VisualizationMode.Line:
-        visualisation = new LineVisualization(height, width, soundBuffer);
-        break;
-    case VisualizationMode.Bars:
-        visualisation = new BarVisualization(height, width, soundBuffer, 4);
-        break;
-    case VisualizationMode.Map:
-        visualisation = new MapVisualization(height, width, soundBuffer, 4);
-        break;
-    case VisualizationMode.Spectrogram:
-        visualisation = new SpectrogramVisualization(height, width, soundBuffer, 4);
-        break;
-    case VisualizationMode.Space:
-        visualisation = new SpaceVisualization(height, width, soundBuffer, 4);
-        break;
-    default:
-        throw new ArgumentOutOfRangeException();
-}
-
-
-var window = new SFML.Graphics.RenderWindow(
-    new SFML.Window.VideoMode(width, height),
-    visualisation.GetType().ToString());
-window.SetFramerateLimit(fps);
-window.KeyPressed += (sender, eventArgs) =>
-{
-    if (sender == null) return;
-    var senderWindow = (SFML.Window.Window)sender;
-    if (eventArgs.Code == SFML.Window.Keyboard.Key.Escape)
-    {
-        senderWindow.Close();
-    } };
+SoundBuffer soundBuffer = GetSoundBuffer(songName);
+IVisualization visualisation = GetVisualization(visualizationMode, height, width, soundBuffer);
+var window = SetupNewWindow(width, height, visualisation, fps);
 
 
 // Start the game loop
 while (window.IsOpen)
 {
-    visualisation.Update();
+    //clear current frame
     window.Clear();
-
     // Process events
     window.DispatchEvents();
+    
+    //update and draw visualisation
+    visualisation.Update();
     visualisation.Draw(window);
         
     // Finally, display the rendered frame on screen
     window.Display();
 }
 
-#pragma warning disable CS8321
+visualisation.Quit();
+
 VisualizationMode UserSelectMode()
 {
     Console.WriteLine("Select one of: `line`, `bar`, `map`, `spec`, `space`: ");
@@ -103,13 +69,63 @@ VisualizationMode UserSelectMode()
 
 string UserSelectSong()
 {
-    string? name = "_";
-    Console.WriteLine("Select song name:");
-    while (name is null || !File.Exists(pathBase + name + ".wav"))
+    string? fullPath = null;
+    Console.WriteLine("Select full path to song:");
+    while (fullPath is null || !File.Exists(fullPath))
     {
-        name = Console.ReadLine();
+        fullPath = Console.ReadLine();
     }
 
-    return name;
+    return fullPath;
 }
-#pragma warning restore CS8321
+
+IVisualization GetVisualization(VisualizationMode mode, uint winHeight, uint winWidth, SoundBuffer soundBuffer1)
+{
+    IVisualization visualization;
+    switch (mode)
+    {
+        case VisualizationMode.Line:
+            visualization = new LineVisualization(winHeight, winWidth, soundBuffer1);
+            break;
+        case VisualizationMode.Bars:
+            visualization = new BarVisualization(winHeight, winWidth, soundBuffer1, 4);
+            break;
+        case VisualizationMode.Map:
+            visualization = new MapVisualization(winHeight, winWidth, soundBuffer1, 4);
+            break;
+        case VisualizationMode.Spectrogram:
+            visualization = new SpectrogramVisualization(winHeight, winWidth, soundBuffer1, 4);
+            break;
+        case VisualizationMode.Space:
+            visualization = new SpaceVisualization(winHeight, winWidth, soundBuffer1, 4);
+            break;
+        default:
+            throw new ArgumentOutOfRangeException();
+    }
+
+    return visualization;
+}
+
+RenderWindow SetupNewWindow(uint winWidth, uint winHeight, IVisualization visualisation1, uint frameLimit)
+{
+    var renderWindow = new RenderWindow(
+        new SFML.Window.VideoMode(winWidth, winHeight),
+        visualisation1.GetType().ToString());
+    renderWindow.SetFramerateLimit(frameLimit);
+    renderWindow.KeyPressed += (sender, eventArgs) =>
+    {
+        if (sender == null) return;
+        var senderWindow = (SFML.Window.Window)sender;
+        if (eventArgs.Code == SFML.Window.Keyboard.Key.Escape)
+        {
+            senderWindow.Close();
+        }
+    };
+    return renderWindow;
+}
+
+SoundBuffer GetSoundBuffer(string fullPath)
+{
+    var rawData = File.ReadAllBytes(fullPath);
+    return new SoundBuffer(rawData);
+}

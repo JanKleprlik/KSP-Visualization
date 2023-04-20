@@ -15,9 +15,6 @@ public class LineVisualization : AbstractVisualization
         
         _vertices[0] = new Vertex(new Vector2f((Width - IterationDataSize) / 2f, Height / 2f));
         _vertices[1] = new Vertex(new Vector2f((Width - IterationDataSize) / 2f, Height / 2f));
-        
-        Song.Loop = true;
-        Song.Play();
     }
 
     public override void Draw(RenderWindow window)
